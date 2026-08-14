@@ -209,9 +209,37 @@ export default function RoomPage() {
     setSendProgress(0);
     setUploadSpeed('');
     try {
-      await uploadFileRaw(selectedFile, selectedFile.name, myName, (pct) => {
-        setSendProgress(pct);
-      });
+      let uploadedViaBlob = false;
+      try {
+        const { upload } = await import('@vercel/blob/client');
+        let startTime = Date.now();
+        
+        await upload(selectedFile.name, selectedFile, {
+          access: 'public',
+          handleUploadUrl: `/api/room/${code}/files/upload`,
+          clientPayload: JSON.stringify({ senderName: myName }),
+          onUploadProgress: (progressEvent) => {
+            setSendProgress(progressEvent.percentage);
+            const elapsed = (Date.now() - startTime) / 1000 || 0.001;
+            const bps = progressEvent.loaded / elapsed;
+            setUploadSpeed(bps > 1_000_000
+              ? `${(bps / 1_000_000).toFixed(1)} MB/s`
+              : `${(bps / 1_000).toFixed(0)} KB/s`
+            );
+          }
+        });
+        uploadedViaBlob = true;
+      } catch (blobErr) {
+        console.warn('[LinkBeam] Vercel Blob client upload failed or not configured, falling back to local storage:', blobErr);
+      }
+
+      if (!uploadedViaBlob) {
+        // Fallback to raw file upload (local dev without Vercel Blob token)
+        await uploadFileRaw(selectedFile, selectedFile.name, myName, (pct) => {
+          setSendProgress(pct);
+        });
+      }
+
       setSendProgress(100);
       await pollFiles();
       setTimeout(() => { setSelectedFile(null); setIsSending(false); setSendProgress(0); setUploadSpeed(''); }, 800);
