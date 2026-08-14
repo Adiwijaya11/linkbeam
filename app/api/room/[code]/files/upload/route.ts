@@ -7,16 +7,24 @@ export async function POST(
   { params }: { params: Promise<{ code: string }> }
 ): Promise<NextResponse> {
   const { code } = await params;
+
+  if (!process.env.BLOB_READ_WRITE_TOKEN) {
+    return NextResponse.json(
+      { error: 'Vercel Blob is not configured. Please add BLOB_READ_WRITE_TOKEN in your Vercel project environment variables.' },
+      { status: 500 }
+    );
+  }
+
   const body = await request.json();
 
   try {
     const jsonResponse = await handleUpload({
       body,
       request,
-      onBeforeGenerateToken: async () => {
+      onBeforeGenerateToken: async (pathname, clientPayload) => {
         return {
-          allowedContentTypes: undefined,
-          tokenPayload: body.clientPayload,
+          allowedContentTypes: undefined, // allow all file types
+          tokenPayload: clientPayload, // pass down clientPayload (senderName)
         };
       },
       onUploadCompleted: async ({ blob, tokenPayload }) => {
