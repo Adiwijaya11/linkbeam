@@ -24,7 +24,7 @@ export async function GET(
       status: 200,
       headers: {
         'Content-Type': file.type,
-        'Content-Disposition': 'attachment; filename*=UTF-8''' + encodeURIComponent(file.name),
+        'Content-Disposition': `attachment; filename*=UTF-8''${encodeURIComponent(file.name)}`,
         'Content-Length': String(file.size),
         'Cache-Control': 'no-store',
       },

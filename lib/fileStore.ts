@@ -1,4 +1,4 @@
-﻿import { put, del } from '@vercel/blob';
+import { put, del } from '@vercel/blob';
 
 // Shared in-memory file metadata store
 // Binary data goes to Vercel Blob; metadata stays in RAM.
@@ -83,7 +83,7 @@ export async function saveUploadStream(
     hasToken && (size > RAM_LIMIT || type.startsWith('video/') || type.startsWith('image/'));
 
   if (needsBlob) {
-    const blob = await put(linkbeam///, webStream, {
+    const blob = await put(`linkbeam/${code}/${id}/${encodeURIComponent(name)}`, webStream, {
       access: 'public',
       contentType: type || 'application/octet-stream',
     });
@@ -91,7 +91,7 @@ export async function saveUploadStream(
     return {
       id,
       name,
-      size: blob.size ?? size,
+      size,
       type,
       storageType: 'blob',
       blobUrl: blob.url,

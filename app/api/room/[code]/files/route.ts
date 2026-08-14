@@ -7,7 +7,7 @@ export async function GET(
   { params }: { params: Promise<{ code: string }> }
 ) {
   const { code } = await params;
-  const files = getFiles(code).map(({ buffer: _, filePath: __, ...meta }) => meta);
+  const files = getFiles(code).map(({ buffer: _, ...meta }) => meta);
   return NextResponse.json({ files });
 }
 
