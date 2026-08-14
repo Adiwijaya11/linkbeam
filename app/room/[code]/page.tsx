@@ -84,6 +84,7 @@ export default function RoomPage() {
   const code = (params?.code as string) || '';
 
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [showSidebar, setShowSidebar] = useState(false);
 
   // Unified send progress (covers upload phase)
   const [isSending, setIsSending] = useState(false);
@@ -241,21 +242,34 @@ export default function RoomPage() {
       <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-[#14B8A6]/10 blur-[100px] -z-10 pointer-events-none" />
 
       {/* ── Header ── */}
-      <header className="flex justify-between items-center mb-8 max-w-5xl mx-auto w-full relative z-10">
-        <div className="flex items-center gap-3 pointer-events-none">
-          <div className="w-10 h-10 bg-[#0EA5E9] rounded-full flex items-center justify-center shadow-md">
-            <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <header className="flex justify-between items-center mb-5 sm:mb-8 max-w-5xl mx-auto w-full relative z-10">
+        <div className="flex items-center gap-2 sm:gap-3 pointer-events-none">
+          <div className="w-8 h-8 sm:w-10 sm:h-10 bg-[#0EA5E9] rounded-full flex items-center justify-center shadow-md shrink-0">
+            <svg className="w-4 h-4 sm:w-5 sm:h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
             </svg>
           </div>
-          <span className="font-extrabold text-xl text-[#334155]">LinkBeam</span>
+          <span className="font-extrabold text-lg sm:text-xl text-[#334155]">LinkBeam</span>
         </div>
-        <div className="bg-[#0EA5E9]/10 text-[#0EA5E9] px-4 py-2 rounded-full font-mono font-bold tracking-widest text-lg uppercase pointer-events-none">
-          {code}
+        <div className="flex items-center gap-2">
+          <div className="bg-[#0EA5E9]/10 text-[#0EA5E9] px-3 sm:px-4 py-1.5 sm:py-2 rounded-full font-mono font-bold tracking-widest text-base sm:text-lg uppercase pointer-events-none">
+            {code}
+          </div>
+          {/* Mobile sidebar toggle */}
+          <button
+            type="button"
+            onClick={() => setShowSidebar((v) => !v)}
+            className="lg:hidden w-9 h-9 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:bg-slate-200 transition-colors touch-manipulation relative z-20"
+            aria-label="Toggle QR & devices"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 3.5V16M4 8h4m0 0V4m0 4h.01M20 4v.5M20 8v.5M4 20h.01" />
+            </svg>
+          </button>
         </div>
       </header>
 
-      <div className="flex-grow flex flex-col lg:flex-row gap-8 max-w-5xl mx-auto w-full items-start relative z-10">
+      <div className="flex-grow flex flex-col lg:flex-row gap-5 sm:gap-8 max-w-5xl mx-auto w-full items-start relative z-10">
 
         {/* ── Main Column ── */}
         <div className="flex-grow w-full flex flex-col gap-6">
@@ -376,16 +390,47 @@ export default function RoomPage() {
                     Images, videos, documents, ZIP — any format
                   </p>
 
-                  {/* Hidden inputs */}
-                  <input type="file" id="file-upload" className="hidden" onChange={handleFileChange} />
+                  {/* Hidden inputs — accept all file types including iPhone photos/videos */}
+                  <input
+                    type="file"
+                    id="file-upload"
+                    className="hidden"
+                    onChange={handleFileChange}
+                    accept="*/*"
+                  />
+                  <input
+                    type="file"
+                    id="file-upload-camera"
+                    className="hidden"
+                    onChange={handleFileChange}
+                    accept="image/*,video/*"
+                    capture="environment"
+                  />
 
-                  <Button
-                    type="button"
-                    onClick={() => document.getElementById('file-upload')?.click()}
-                    className="touch-manipulation relative z-20"
-                  >
-                    Choose File
-                  </Button>
+                  <div className="flex flex-col sm:flex-row gap-2 w-full max-w-xs">
+                    <Button
+                      type="button"
+                      onClick={() => document.getElementById('file-upload')?.click()}
+                      className="touch-manipulation relative z-20 flex-1"
+                    >
+                      <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                      Choose File
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      onClick={() => document.getElementById('file-upload-camera')?.click()}
+                      className="touch-manipulation relative z-20 flex-1"
+                    >
+                      <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                      Photo/Video
+                    </Button>
+                  </div>
                 </>
               )}
             </div>
@@ -434,36 +479,41 @@ export default function RoomPage() {
         </div>
 
         {/* ── Sidebar ── */}
-        <div className="w-full lg:w-72 flex flex-col gap-6 shrink-0">
+        <div className={`w-full lg:w-72 flex flex-col gap-5 sm:gap-6 shrink-0 ${showSidebar ? 'flex' : 'hidden'} lg:flex`}>
 
           {/* QR Code */}
-          <Card className="p-6 flex flex-col items-center">
-            <p className="text-sm font-medium text-slate-500 mb-1 text-center pointer-events-none">Scan to join room</p>
-            <p className="text-[10px] text-slate-400 mb-4 text-center break-all pointer-events-none">{roomUrl}</p>
-            <div className="w-44 h-44 rounded-2xl overflow-hidden bg-white border border-slate-200 shadow-sm flex items-center justify-center pointer-events-none">
-              {roomUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={`https://api.qrserver.com/v1/create-qr-code/?size=176x176&margin=8&data=${encodeURIComponent(roomUrl)}`}
-                  alt="QR Code"
-                  width={176}
-                  height={176}
-                  className="w-full h-full object-contain"
-                />
-              ) : (
-                <div className="w-full h-full bg-slate-100 animate-pulse rounded-2xl" />
-              )}
+          <Card className="p-4 sm:p-6">
+            {/* Mobile: horizontal layout; Desktop: vertical */}
+            <div className="flex flex-row lg:flex-col items-center gap-4 lg:gap-0">
+              <div className="w-28 h-28 sm:w-36 sm:h-36 lg:w-44 lg:h-44 rounded-2xl overflow-hidden bg-white border border-slate-200 shadow-sm flex items-center justify-center pointer-events-none shrink-0">
+                {roomUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={`https://api.qrserver.com/v1/create-qr-code/?size=176x176&margin=8&data=${encodeURIComponent(roomUrl)}`}
+                    alt="QR Code"
+                    width={176}
+                    height={176}
+                    className="w-full h-full object-contain"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-slate-100 animate-pulse rounded-2xl" />
+                )}
+              </div>
+              <div className="flex flex-col gap-1 lg:mt-3 lg:items-center">
+                <p className="text-sm font-medium text-slate-600 lg:text-center pointer-events-none">Scan to join room</p>
+                <p className="text-[10px] text-slate-400 break-all lg:text-center pointer-events-none">{roomUrl}</p>
+                <button
+                  type="button"
+                  onClick={() => roomUrl && navigator.clipboard.writeText(roomUrl)}
+                  className="mt-2 flex items-center gap-1.5 text-xs text-[#0EA5E9] font-medium hover:underline touch-manipulation relative z-20"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                  </svg>
+                  Copy link
+                </button>
+              </div>
             </div>
-            <button
-              type="button"
-              onClick={() => roomUrl && navigator.clipboard.writeText(roomUrl)}
-              className="mt-4 flex items-center gap-2 text-xs text-[#0EA5E9] font-medium hover:underline touch-manipulation relative z-20"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-              </svg>
-              Copy link
-            </button>
           </Card>
 
           {/* Connected Devices */}
